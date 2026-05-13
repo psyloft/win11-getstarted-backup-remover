@@ -1,0 +1,6 @@
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.md text eol=lf
+*.srd binary
+*.backup binary
+*.backup.* binary

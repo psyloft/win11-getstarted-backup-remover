@@ -1,0 +1,23 @@
+# Local machine backups. Never publish AppRepository or manifest backups.
+/backups/*
+!/backups/.gitkeep
+
+# Windows AppRepository databases and sidecars.
+*.srd
+*.srd-wal
+*.srd-shm
+*.srd-journal
+*.srd.new
+*.srd.restore
+
+# Backup artifacts.
+*.backup
+*.backup.*
+*.bak
+*.log
+
+# Editor and OS files.
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
