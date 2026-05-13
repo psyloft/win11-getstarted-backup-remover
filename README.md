@@ -1,21 +1,21 @@
 # Win11 Get Started / Windows Backup Remover
 
-移除 Windows 11 开始菜单的所有应用中的 **Get Started** 和 **Windows Backup** 入口。
+Remove the **Get Started** and **Windows Backup** entries from **All apps** in the Windows 11 Start Menu.
 
-这些入口在部分 Windows 11 版本中不是独立 Appx 包，而是注册在系统包 `MicrosoftWindows.Client.CBS` 中，所以普通 `Remove-AppxPackage` 通常无效。本项目提供备份、移除、缓存重置和恢复脚本。
+On some Windows 11 versions, these entries are not standalone Appx packages. Instead, they are registered inside the system package `MicrosoftWindows.Client.CBS`, so the normal `Remove-AppxPackage` method usually does not work. This project provides scripts for backup, removal, cache reset, and restoration.
 
-## 风险
+## Risks
 
-这不是 Microsoft 官方卸载方式。脚本可能修改：
+This is not an official Microsoft removal method. The scripts may modify:
 
 ```text
 C:\Windows\SystemApps\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\AppxManifest.xml
 C:\ProgramData\Microsoft\Windows\AppRepository\StateRepository-Machine.srd
 ```
 
-可能影响 Windows 累计更新、开始菜单、搜索或 Appx 注册。请先备份，只在你能接受风险的设备上使用。
+This may affect Windows cumulative updates, the Start Menu, Search, or Appx registration. Please create a backup first, and only use this on devices where you accept the risk.
 
-## 文件结构
+## File Structure
 
 ```text
 .
@@ -32,81 +32,81 @@ C:\ProgramData\Microsoft\Windows\AppRepository\StateRepository-Machine.srd
 └── .gitattributes
 ```
 
-## 使用方法
+## Usage
 
-以管理员身份打开 PowerShell，进入项目目录：
+Open PowerShell as Administrator and enter the project directory:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
 ```
 
-先检查当前状态：
+Check the current state first:
 
 ```powershell
 .\scripts\Verify-ClientCBS.ps1
 ```
 
-创建备份：
+Create a backup:
 
 ```powershell
 .\scripts\Backup-ClientCBS.ps1
 ```
 
-移除 Get Started / Windows Backup：
+Remove Get Started / Windows Backup:
 
 ```powershell
 .\scripts\Remove-GetStartedWindowsBackup.ps1
 ```
 
-如果脚本提示需要清理 `Get-StartApps` 残留，先尝试低风险缓存重置：
+If the script indicates that `Get-StartApps` residue needs to be cleaned, try the lower-risk cache reset first:
 
 ```powershell
 .\scripts\Reset-StartAppsCache.ps1
 shutdown /r /t 0
 ```
 
-重启后仍然残留时，再执行 AppRepository 清理：
+If the entries still remain after reboot, run AppRepository cleanup:
 
 ```powershell
 .\scripts\Remove-GetStartedWindowsBackup.ps1 -SkipBackup -SkipManifest -CleanStartAppsResidue -InstallMySQLite
 shutdown /r /t 0
 ```
 
-`-InstallMySQLite` 会为当前用户安装 `MySQLite` PowerShell 模块，用于安全处理 AppRepository SQLite 数据库副本。
+`-InstallMySQLite` installs the `MySQLite` PowerShell module for the current user. It is used to safely process a copy of the AppRepository SQLite database.
 
-## 恢复
+## Restore
 
-备份默认保存在：
+Backups are saved by default in:
 
 ```text
 backups\ClientCBS-backup-yyyyMMdd-HHmmss\
 ```
 
-恢复 Manifest：
+Restore the manifest:
 
 ```powershell
 .\scripts\Restore-ClientCBS.ps1 -BackupPath .\backups\ClientCBS-backup-yyyyMMdd-HHmmss
 shutdown /r /t 0
 ```
 
-只有在 Windows Update、开始菜单、搜索或 Appx 注册异常时，才恢复 AppRepository 数据库：
+Only restore the AppRepository database when Windows Update, the Start Menu, Search, or Appx registration behaves abnormally:
 
 ```powershell
 .\scripts\Restore-ClientCBS.ps1 -BackupPath .\backups\ClientCBS-backup-yyyyMMdd-HHmmss -RestoreStateRepository -InstallMySQLite
 shutdown /r /t 0
 ```
 
-如果系统已经安装过新的累计更新，不建议轻易恢复旧 `.srd` 数据库。
+If the system has already installed new cumulative updates, restoring an old `.srd` database is not recommended.
 
-## 验证
+## Verification
 
-运行：
+Run:
 
 ```powershell
 .\scripts\Verify-ClientCBS.ps1
 ```
 
-成功时应看不到目标 Manifest 入口，也看不到目标 `Get-StartApps` 项：
+When the removal is successful, the target manifest entries and target `Get-StartApps` entries should no longer be visible:
 
 ```text
 WebExperienceHost
@@ -115,6 +115,6 @@ Get Started
 Windows Backup
 ```
 
-## 免责声明
+## Disclaimer
 
-本项目用于个人研究和系统定制。使用者自行承担 Windows 更新失败、系统组件异常或修复成本等风险。
+This project is intended for personal research and system customization. Users are responsible for any Windows update failure, system component issue, or repair cost caused by using this project.
